@@ -600,7 +600,11 @@ class SimulatorDriver:
         self._draw_obstacles()
         self._draw_debug_info()
         self._draw_sonar_debug()
-        
+        for event in pygame.event.get():
+            if(event == pygame.QUIT):
+                quit()
+            else:
+                print(event)
         pygame.display.flip()
         self.clock.tick(self.fps)
 

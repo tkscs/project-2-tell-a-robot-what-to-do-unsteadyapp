@@ -1,14 +1,5 @@
-from simulator import robot, FORWARD, BACKWARD, STOP
-import time
-# TODO: Write your code here!
-# Use robot.motors() to move
-# Use robot.left_sonar() and robot.right_sonar() to sense obstacles
 grid = []
 x = 8
-
-def motorsAndWait(Left,Right,Seconds):
-    robot.motors(left=Left,right=Right,seconds=Seconds)
-    time.sleep(abs(Seconds))
 import numpy as np
 for i in range(0,x):
     grid.append("o" * int(x))
@@ -22,16 +13,11 @@ def createMap():
             mapping[i] = mapping[i][:j] + str(np.abs(j - goal[0]) + np.abs(i-goal[1])) + mapping[i][j+1:]
     return(mapping)
 def sonarScan():
-    if(robot.right_sonar()>0):
-        return(False)
-    else:
-        return(True)
-def forward(helper):
+    return(False)
+def forward():
     # put whatever forward code here
-    motorsAndWait(FORWARD,FORWARD,2)
     global where
-    where = helper
-    #where = (int(where[0]+np.round(np.sin((direction*np.pi)/180))),int(where[1]+np.round(np.cos((direction*np.pi)/180))))
+    where = (int(where[0]+np.round(np.sin((direction*np.pi)/180))),int(where[1]+np.round(np.cos((direction*np.pi)/180))))
     print(where)
 end = False
 currentMap = createMap()
@@ -39,17 +25,13 @@ print(currentMap)
 def angleCalculate(start,destination):
     rotate(start-destination)
 def rotate(angle):
-    angleInSeconds = angle/(0.98 * 60)
-    # angle = 0.98 * 60 * seconds
-    #seconds = angle/(0.98 * 60)
-    motorsAndWait(BACKWARD,FORWARD,angleInSeconds)
     global direction
     direction = direction + angle
-where = [2,3]
+    #for later
 testing = (int(where[0]+np.round(np.sin((direction*np.pi)/180))),int(where[1]+np.round(np.cos((direction*np.pi)/180))))
 while end == False:
     values = []
-    value = [100000,"imposible",""]
+    value = [100000,"imposible"]
     for p in [(1,0),(-1,0),(0,1),(0,-1)]:
         whereTo = np.array(where) + np.array(p)
         whereTo = [int(whereTo[0]),int(whereTo[1])]
@@ -58,29 +40,15 @@ while end == False:
             print("coord " + str((p[0],p[1])) + ". Value: " + str(value[0]) + ". Map" + str(int(currentMap[whereTo[1]][whereTo[0]])))
             if(value[0] > int(currentMap[whereTo[1]][whereTo[0]])):
                 value[0] = int(currentMap[whereTo[1]][whereTo[0]])
-                value[2] = whereTo
-                if(p == (1,0)):
-                    value[1] = 0
-                    print(p)
-                elif(p==(0,1)):
-                    value[1] = 90
-                elif(p==(-1,0)):
-                    value[1] = 180
-                elif(p==(0,-1)):
-                    value[1] = 270
-                else:
-                    raise Exception("invalid list itterator value")
-                #value[1] = round(180 * np.atan2(p[1],p[0])/np.pi)
+                value[1] = round(180 * np.atan2(p[1],p[0])/np.pi)
                 print("angle" + str(value[1]))
             values.append([currentMap[whereTo[1]][whereTo[0]],direction])
     if(value[1] == "imposible"):
         print(value)
         raise Exception("no space to move!")
     angleCalculate(direction,value[1])
-    forward(value[2])
     print("moved" + str(where))
+    forward()
     currentMap = createMap()
-    if(where == [goal[0],goal[1]]):
+    if(where == goal):
         end = True
-# When you're done, close the simulator
-robot.exit()
