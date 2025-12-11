@@ -1,6 +1,6 @@
 from simulator import robot, FORWARD, BACKWARD, STOP
 import time
-import pynput
+import random
 import numpy as np
 class robotExtras():
     pos = (0,0)
@@ -13,7 +13,10 @@ def rotateTo(angle):
     angleInSeconds = (angle)/(0.98 * 60)
     motorsAndWait(FORWARD,BACKWARD,abs(angleInSeconds))
 def AdvancedRotateTo(angle):
-    if(angle%360<=180):
+    if(angle%360 == 0):
+        debugDirrection = None
+        angleInSeconds = 0
+    elif(angle%360<=180):
         angleInSeconds = (angle)/(0.98 * 60)
         debugDirrection = "right"
         motorsAndWait(FORWARD,BACKWARD,abs(angleInSeconds))
@@ -24,46 +27,76 @@ def AdvancedRotateTo(angle):
     print(f"angle: {angle} converted to {angleInSeconds} while turning to the {debugDirrection}")
 def motorsAndWait(Left,Right,Seconds):
     robot.motors(left=Left,right=Right,seconds=Seconds)
-    time.sleep(Seconds)
-vector = (-200,-200)
+def forward(dist): #comment
+    """Distance to go: Float"""
+    print(dist)
+    print(speed_per_power_in_seconds)
+    print(dist/speed_per_power_in_seconds)
+    motorsAndWait(FORWARD,FORWARD,dist/speed_per_power_in_seconds)
+    print(f"done {dist/speed_per_power_in_seconds}")
 def sign(num):
+    """Number: Float
+    Returns : 1,-1"""
     if(num>=0):
         return(1)
     else:
         return(-1)
-signX = sign(vector[0]) == 1
-signY = sign(vector[1]) == 1
-if(signX and signY):
-    toAdd = 0
-    inverse = False
-    vector = (abs(vector[0]),abs(vector[1]))
-elif(not(signX) and not(signY)):
-    toAdd = 180
-    inverse = False
-    vector = (abs(vector[0]),abs(vector[1]))
-elif(not(signX) and signY):
-    toAdd = 90
-    inverse = True
-    vector = (abs(vector[1]),abs(vector[0]))
-elif(signX and not(signY)):
-    toAdd = 270
-    inverse = True
-    vector = (abs(vector[1]),abs(vector[0]))
-else:
-    raise Exception("Signs don't meet any conditions")
-
-speed_per_power_in_seconds = 60
-try:
-    angleInRad = (np.arctan(vector[1]/vector[0]))
-except ZeroDivisionError:
-    angleInRad = np.pi
-print(toAdd + (angleInRad*180/np.pi))
-AdvancedRotateTo(toAdd + (angleInRad*180/np.pi))
-distance = np.linalg.norm(vector)
-print(distance)
-def forward(dist):
-    motorsAndWait(FORWARD,FORWARD,dist/speed_per_power_in_seconds)
-    print("done")
-forward(distance)
-print(distance)
-input()
+#technicly 899 but as soon as it rotates it will crash
+#200 x 200
+# functionaly 100 * (2**1/2)
+inp = False
+while True:
+    print(robot.driver.x,robot.driver.y)
+    vector = (-1000+(100 * (2**(1/2))),random.randint(-300,300))
+    if(inp):
+        userInp = input("Left or Right").lower()
+        if(userInp == "left"):
+            print("not working right now, bye")
+            quit()
+        elif(userInp == "right"):
+            userInp = input("x coord").lower()
+            try:
+                if(userInp>0):
+                    vector[0] = userInp
+            except TypeError:
+                print("not a number, using default")
+        else:
+            print("that's not either")
+            quit()
+    print(robot.left_sonar())
+    print(vector)
+    signX = sign(vector[0]) == 1
+    signY = sign(vector[1]) == 1
+    if(signX and signY):
+        toAdd = 0
+        inverse = False
+        vector = (abs(vector[0]),abs(vector[1]))
+    elif(not(signX) and not(signY)):
+        toAdd = 180
+        inverse = False
+        vector = (abs(vector[0]),abs(vector[1]))
+    elif(not(signX) and signY):
+        toAdd = 90
+        inverse = True
+        vector = (abs(vector[1]),abs(vector[0]))
+    elif(signX and not(signY)):
+        toAdd = 270
+        inverse = True
+        vector = (abs(vector[1]),abs(vector[0]))
+    else:
+        raise Exception("Signs don't meet any conditions")
+    speed_per_power_in_seconds = 60
+    try:
+        angleInRad = (np.arctan(vector[1]/vector[0]))
+    except ZeroDivisionError:
+        angleInRad = np.pi
+    angleToRotateTo = toAdd + (angleInRad*180/np.pi)
+    AdvancedRotateTo(angleToRotateTo)
+    #distance = np.linalg.norm(vector)
+    distance = (vector[0]**2 + vector[1]**2)**(1/2)
+    if(robot.left_sonar()*10>distance+(100 * (2**(1/2)))):
+        raise Exception("Too close!")
+    forward(distance)
+    AdvancedRotateTo((180 - (angleToRotateTo%360))%360)
+    forward(distance)
+    AdvancedRotateTo((180 - (angleToRotateTo%360))%360)
