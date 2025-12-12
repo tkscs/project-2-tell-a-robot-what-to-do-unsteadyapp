@@ -47,7 +47,8 @@ def sign(num):
 inp = False
 while True:
     print(robot.driver.x,robot.driver.y)
-    vector = (-1000+(100 * (2**(1/2))),random.randint(-300,300))
+    vector = (1000-(100 * (2**(1/2))),random.randint(-300,300))
+    vector = (1001-(100 * (2**(1/2))),0)
     if(inp):
         userInp = input("Left or Right").lower()
         if(userInp == "left"):
@@ -94,9 +95,13 @@ while True:
     AdvancedRotateTo(angleToRotateTo)
     #distance = np.linalg.norm(vector)
     distance = (vector[0]**2 + vector[1]**2)**(1/2)
-    if(robot.left_sonar()*10>distance+(100 * (2**(1/2)))):
-        raise Exception("Too close!")
+    sonarDist = robot.left_sonar()*10
+    if(sonarDist-(100 * (2**(1/2)))>distance):
+        raise Exception(f"Too close!, {sonarDist-(100 * (2**(1/2)))} is greater than {distance}")
+    forward(distance)
+    rotateTo(180)
     forward(distance)
     AdvancedRotateTo((180 - (angleToRotateTo%360))%360)
-    forward(distance)
-    AdvancedRotateTo((180 - (angleToRotateTo%360))%360)
+    if(robot.driver.x != 0 or robot.driver.y != 0 or robot.driver.heading != 0):
+        print("Not at origin: ",robot.driver.x,robot.driver.y,robot.driver.heading)
+    
