@@ -44,7 +44,7 @@ def sign(num):
 #technicly 899 but as soon as it rotates it will crash
 #200 x 200
 # functionaly 100 * (2**1/2)
-inp = False
+inp = True
 while True:
     print(robot.driver.x,robot.driver.y)
     vector = (-1000+(100 * (2**(1/2))),random.randint(-300,300))
