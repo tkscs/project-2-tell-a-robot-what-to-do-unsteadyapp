@@ -2,14 +2,10 @@ from simulator import robot, FORWARD, BACKWARD, STOP
 import time
 import random
 import numpy as np
-class robotExtras():
-    pos = (0,0)
-    goal = None
-    direction = 0
-def onClick(coords):
-    if(coords>0):
-        robotExtras.goal = coords
+debug = False
 def rotateTo(angle):
+    """Simple version, only rotates to the left
+    angle is a postive float to rotate that many degrees"""
     angleInSeconds = (angle)/(0.98 * 60)
     motorsAndWait(FORWARD,BACKWARD,abs(angleInSeconds))
 def AdvancedRotateTo(angle):
@@ -26,7 +22,24 @@ def AdvancedRotateTo(angle):
         motorsAndWait(BACKWARD,FORWARD,abs(angleInSeconds))
     print(f"angle: {angle} converted to {angleInSeconds} while turning to the {debugDirrection}")
 def motorsAndWait(Left,Right,Seconds):
-    robot.motors(left=Left,right=Right,seconds=Seconds)
+    """calls the motors for the specified time
+    left = FORWARD, BACKWARD, STOP
+    right = FORWARD, BACKWARD, STOP
+    seconds =float>0.5"""
+    if(Seconds<0.5):
+        motorsAndWait(Left,Right,Seconds=Seconds+0.5)
+        motorsAndWait(inverseOf(Left),inverseOf(Right),Seconds=0.5)
+        print("broke, less than 0.5")
+    else:
+        ModSeconds = Seconds
+        robot.motors(left=Left,right=Right,seconds=ModSeconds)
+def inverseOf(bit):
+    if(bit == FORWARD):
+        return(BACKWARD)
+    elif(bit== BACKWARD):
+        return(FORWARD)
+    else:
+        return(STOP)
 def forward(dist): #comment
     """Distance to go: Float"""
     print(dist)
@@ -45,27 +58,52 @@ def sign(num):
 #200 x 200
 # functionaly 100 * (2**1/2)
 inp = False
+EXTRADISTANCEWHILETURNED = (100 * (2**(1/2))) - 100 #about 44
 while True:
-    print(robot.driver.x,robot.driver.y)
-    vector = (1000-(100 * (2**(1/2))),random.randint(-300,300))
-    vector = (1001-(100 * (2**(1/2))),0)
-    if(inp):
-        userInp = input("Left or Right").lower()
+    if(debug):
+        print(robot.driver.x,robot.driver.y)
+    vector = [1000-(100 * (2**(1/2))),random.randint(-300,300)]
+    vector = [899-EXTRADISTANCEWHILETURNED,random.randint(-500,500)]
+    userInp = input("go back after moving? (assumed true unless you type \"no\")").lower().strip()
+    if(userInp == "no"):
+        goBack = False
+    else:
+        goBack = True
+    rotateAfter = None
+    while rotateAfter == None:
+        userInp = input("Left, Right, or quit").lower().strip()
         if(userInp == "left"):
-            print("not working right now, bye")
-            quit()
-        elif(userInp == "right"):
-            userInp = input("x coord").lower()
             try:
-                if(userInp>0):
-                    vector[0] = userInp
+                userInp = int(input("y coord").lower().strip())
             except TypeError:
                 print("not a number, using default")
-        else:
-            print("that's not either")
+            else:
+                if(userInp<300 and userInp>-300):
+                    vector[1] = userInp
+                    rotateAfter = True
+                    if(debug):
+                        time.sleep(1)
+                    AdvancedRotateTo(180)
+                else:
+                    print(f"{userInp} is not between -300 and 300")
+        elif userInp == "quit":
             quit()
+        elif(userInp == "right"):
+            try:
+                userInp = int(input("y coord").lower().strip())
+            except TypeError:
+                print("not a number, using default")
+            else:
+                if(userInp<300 and userInp>-300):
+                    vector[1] = userInp
+                    rotateAfter = False
+                else:
+                    print(f"{userInp} is not between -300 and 300")
+    else:
+            print("that's not either")
     print(robot.left_sonar())
     print(vector)
+
     signX = sign(vector[0]) == 1
     signY = sign(vector[1]) == 1
     if(signX and signY):
@@ -92,17 +130,24 @@ while True:
     except ZeroDivisionError:
         angleInRad = np.pi
     angleToRotateTo = toAdd + (angleInRad*180/np.pi)
+    time.sleep(0.1)
     AdvancedRotateTo(angleToRotateTo)
-    #distance = np.linalg.norm(vector)
+    time.sleep(0.1)
     distance = (vector[0]**2 + vector[1]**2)**(1/2)
-    sonarDist = robot.left_sonar()*10
-    if(sonarDist + (50 * (2**(1/2)))>distance):
-        raise Exception(f"Too close!, {sonarDist-(100 * (2**(1/2)))} is greater than {distance}")
+    print(f"dist:{distance}")
+    rightSonar = robot.right_sonar() * 10
+    time.sleep(0.5)
+    leftSonar = robot.left_sonar() * 10
+    sonarDist = max(leftSonar,rightSonar)
+    if(sonarDist<distance - EXTRADISTANCEWHILETURNED):
+        raise Exception(f"Too close!, {sonarDist} is greater than {distance + EXTRADISTANCEWHILETURNED}")
     else:
         print(f"Sonar distance: {sonarDist}, while want to go = {distance}")
     forward(distance)
     rotateTo(180)
-    forward(distance)
-    AdvancedRotateTo((180 - (angleToRotateTo%360))%360)
-    if(robot.driver.x != 0 or robot.driver.y != 0 or robot.driver.heading != 0):
-        print("Not at origin: ",robot.driver.x,robot.driver.y,robot.driver.heading)
+    if(goBack):
+        forward(distance)
+    AdvancedRotateTo(((180*rotateAfter) + 180 - (angleToRotateTo%360))%360)
+    if(debug):
+        if(robot.driver.x != 0 or robot.driver.y != 0 or robot.driver.heading != 0):
+            print("Not at origin: ",robot.driver.x,robot.driver.y,robot.driver.heading)
