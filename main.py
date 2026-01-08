@@ -1,6 +1,7 @@
 from simulator import robot, FORWARD, BACKWARD, STOP
 import time
 import random
+
 import numpy as np
 debug = False
 def rotateTo(angle):
