@@ -4,8 +4,8 @@ import random
 import numpy as np
 debug = False
 def rotateTo(angle):
-    """Simple version, only rotates to the left
-    angle is a postive float to rotate that many degrees"""
+    """Simple version, only rotates to the left \n
+    Angle is a postive float to rotate that many degrees"""
     angleInSeconds = (angle)/(0.98 * 60)
     motorsAndWait(FORWARD,BACKWARD,abs(angleInSeconds))
 def AdvancedRotateTo(angle):
@@ -22,9 +22,9 @@ def AdvancedRotateTo(angle):
         motorsAndWait(BACKWARD,FORWARD,abs(angleInSeconds))
     print(f"angle: {angle} converted to {angleInSeconds} while turning to the {debugDirrection}")
 def motorsAndWait(Left,Right,Seconds):
-    """calls the motors for the specified time
-    left = FORWARD, BACKWARD, STOP
-    right = FORWARD, BACKWARD, STOP
+    """calls the motors for the specified time \n
+    left = FORWARD, BACKWARD, STOP \n
+    right = FORWARD, BACKWARD, STOP \n
     seconds =float>0.5"""
     if(Seconds<0.5):
         motorsAndWait(Left,Right,Seconds=Seconds+0.5)
@@ -48,7 +48,7 @@ def forward(dist): #comment
     motorsAndWait(FORWARD,FORWARD,dist/speed_per_power_in_seconds)
     print(f"done {dist/speed_per_power_in_seconds}")
 def sign(num):
-    """Number: Float
+    """Number: Float \n
     Returns : 1,-1"""
     if(num>=0):
         return(1)
