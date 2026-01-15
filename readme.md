@@ -13,7 +13,7 @@ conda install numpy
 Your `main.py` file is already set up with the basic structure:
 ```python
 from simulator import robot, FORWARD, BACKWARD, STOP
-
+![alt text](WIN_20260115_09_26_34_Pro.jpg)
 # TODO: Write your code here!
 # Use robot.motors() to move
 # Use robot.left_sonar() and robot.right_sonar() to sense obstacles
