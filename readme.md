@@ -1,3 +1,4 @@
+[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=21537488&assignment_repo_type=AssignmentRepo)
 ## Installation
 
 To install all dependencies, type the following into the Terminal (if you're on Mac) or Anaconda prompt (if you're on Windows):
@@ -12,7 +13,7 @@ conda install numpy
 Your `main.py` file is already set up with the basic structure:
 ```python
 from simulator import robot, FORWARD, BACKWARD, STOP
-
+![alt text](WIN_20260115_09_26_34_Pro.jpg)
 # TODO: Write your code here!
 # Use robot.motors() to move
 # Use robot.left_sonar() and robot.right_sonar() to sense obstacles

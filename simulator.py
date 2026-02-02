@@ -404,6 +404,7 @@ class SimulatorDriver:
     def _load_images(self):
         """Load and prepare robot images"""
         size = mm_to_px(self.robot_size)
+        
         self.img_left = add_border(
             pygame.image.load(os.path.join('img', "left", f"{size}", 'robobunny.png')),
             color=(0, 0, 0),
@@ -443,6 +444,7 @@ class SimulatorDriver:
                     self.y = 0
                     self.heading = 0
                 else:
+                    print((self.x,self.y))
                     raise Exception(
                         "Ooops! Dr. Ebee doesn't know how to simulate what happens when you "
                         "hit the walls. Also, it's not good for the robot anyway. Try again!!"
@@ -600,7 +602,13 @@ class SimulatorDriver:
         self._draw_obstacles()
         self._draw_debug_info()
         self._draw_sonar_debug()
-        
+        if(False):
+            for event in pygame.event.get():
+                if(event == pygame.QUIT):
+                    print("exiting")
+                    quit()
+                else:
+                    print(event)
         pygame.display.flip()
         self.clock.tick(self.fps)
 
@@ -697,3 +705,4 @@ else:
             break
         else:
             print("Please choose 'r' or 's'")
+            
